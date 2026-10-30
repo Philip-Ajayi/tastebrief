@@ -16,10 +16,10 @@
   }
   header,
   footer,
-  .print\\:hidden {
+  .print\:hidden {
     display: none !important;
   }
-  .print\\:block {
+  .print\:block {
     display: block !important;
   }
   @page {
