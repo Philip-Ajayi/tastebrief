@@ -1,3 +1,4 @@
+// FILE: lib/qloo-client.ts
 import { QlooEntity, NetworkCallLog } from '@/types';
 
 export interface QlooInsightsQueryParams {
@@ -33,6 +34,7 @@ export class QlooClient {
     const queryParams: Record<string, string> = {
       'filter.type': params.filterType,
       limit: (params.limit || 20).toString(),
+      take: (params.limit || 20).toString(),
     };
 
     if (params.filterLocationQuery) {
@@ -75,21 +77,79 @@ export class QlooClient {
       }
 
       const json = JSON.parse(responseBody);
-      const results: any[] = json.results || json.data || [];
 
-      const entities: QlooEntity[] = results.map((item: any, index: number) => ({
-        id: item.id || `ent_${index}`,
-        urn: item.urn || `urn:entity:${params.filterType}:${index}`,
-        name: item.name || 'Unknown Entity',
-        category: (params.filterType.replace('urn:entity:', '') as any) || 'place',
-        tags: Array.isArray(item.tags) ? item.tags : [],
-        score: typeof item.affinity === 'number' ? item.affinity : typeof item.score === 'number' ? item.score : 0.5,
-        metadata: {
-          description: item.description || item.snippet,
-          subgenre: item.subgenre || (item.tags && item.tags[0]),
-          address: item.address,
-        },
-      }));
+      // Handle all Qloo response envelope structures safely:
+      // 1. json.results.entities (Qloo /v2/insights standard envelope)
+      // 2. json.results (if array)
+      // 3. json.data.entities
+      // 4. json.data (if array)
+      // 5. json.entities
+      // 6. Direct array
+      let rawList: any[] = [];
+      if (Array.isArray(json.results?.entities)) {
+        rawList = json.results.entities;
+      } else if (Array.isArray(json.results)) {
+        rawList = json.results;
+      } else if (Array.isArray(json.data?.entities)) {
+        rawList = json.data.entities;
+      } else if (Array.isArray(json.data)) {
+        rawList = json.data;
+      } else if (Array.isArray(json.entities)) {
+        rawList = json.entities;
+      } else if (Array.isArray(json)) {
+        rawList = json;
+      }
+
+      const category = (params.filterType.replace('urn:entity:', '') as any) || 'place';
+
+      const entities: QlooEntity[] = rawList.map((item: any, index: number) => {
+        // Tag normalization: clean URN prefixes & handle object/string types
+        const rawTags = Array.isArray(item.tags)
+          ? item.tags
+          : Array.isArray(item.taxonomy)
+          ? item.taxonomy
+          : [];
+
+        const tags: string[] = rawTags
+          .map((t: any) => {
+            if (typeof t === 'string') {
+              return t.replace(/^urn:tag:[^:]*:[^:]*:/, '').replace(/^urn:tag:/, '');
+            }
+            return t?.name || t?.tag || t?.id || '';
+          })
+          .filter((t: string) => typeof t === 'string' && t.trim().length > 0);
+
+        // Qloo /v2/insights places entity affinities under item.query.affinity
+        let score = 0.5;
+        if (typeof item.query?.affinity === 'number') {
+          score = item.query.affinity;
+        } else if (typeof item.affinity === 'number') {
+          score = item.affinity;
+        } else if (typeof item.score === 'number') {
+          score = item.score;
+        }
+
+        const id = item.entity_id || item.id || `ent_${index}`;
+        const urn =
+          item.urn ||
+          (item.entity_id
+            ? `urn:entity:${category}:${item.entity_id}`
+            : `urn:entity:${category}:${index}`);
+
+        return {
+          id,
+          urn,
+          name: item.name || item.title || 'Unknown Entity',
+          category,
+          tags,
+          score,
+          metadata: {
+            description: item.description || item.snippet || item.metadata?.description,
+            subgenre: item.subgenre || (tags.length > 0 ? tags[0] : undefined),
+            address: item.address || item.location?.address,
+          },
+        };
+      });
 
       this.logs.push({
         timestamp: new Date().toISOString(),
