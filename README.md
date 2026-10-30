@@ -1,50 +1,70 @@
-# TasteBrief — Cross-Border Inbound Taste Intelligence for Independent Hospitality
+# TasteBrief 🍷☕
 
-[![Built for Qloo Hackathon](https://img.shields.io/badge/Qloo_API-v2_Insights-6366f1.svg)](https://qloo.com)
-[![Next.js 14](https://img.shields.io/badge/Next.js-14_App_Router-black.svg)](https://nextjs.org)
-[![Zero-Cost Stack](https://img.shields.io/badge/Stack-100%25_Zero_Cost-emerald.svg)]()
+**Cross-border taste intelligence for independent venues.**
 
-> **TasteBrief** eliminates demographic guesswork and tourist stereotypes for independent café, bar, and boutique hotel operators in global travel hubs. By querying Qloo's Cultural Taste Graph, TasteBrief isolates the mathematical taste divergence between domestic city baselines and inbound visitor cohorts.
+When Berliners visit Lisbon, generic advice tells you to serve currywurst, play Kraftwerk, and hang raw industrial steel. In reality, travelers visit Lisbon for sunlit tiled courtyards, natural pet-nats, and batch brews — not stale clichés from back home.
 
----
-
-## ⚡ Instant Live Judge Evaluation (Zero Setup Required)
-
-Judges can test this application **immediately** with zero environment configuration:
-1. **High-Fidelity Demo Mode**: If no API keys are present in `.env` or in the interface, TasteBrief automatically engages verified, empirically grounded Qloo fixtures for Lisbon–Berlin, Tokyo–Paris, Mexico City–New York, and London–Austin.
-2. **Live Key Injection**: Judges can click **"API Keys"** in the top navigation bar to test their own live Qloo `x-api-key` and Google Gemini Flash keys on the fly.
-3. **Live Network Telemetry**: Click **"Inspect API Logs"** in the top header to see live cURL parameters, status codes, round-trip latency, and raw Qloo JSON payloads.
+**TasteBrief** removes that tourist stereotype guesswork. It queries **Qloo’s Cultural Taste Graph** in real time, runs mathematical lift comparisons between local baselines and inbound visitor tastes, and uses **Gemini 3.5** to generate an operational, printable 1-page Venue Programming Action Memo.
 
 ---
 
-## 🚀 One-Click Deployment to Vercel
+## ⚡ What You Need Before Starting
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new)
+Before running TasteBrief, grab these two API keys (both have quick access tiers):
 
-### Step-by-Step Vercel Setup:
-1. Fork or clone this repository to GitHub.
-2. Import the project into your Vercel Dashboard.
-3. (Optional) Set the following environment variables:
-   * `QLOO_API_KEY`: Your Qloo Hackathon API Key.
-   * `GEMINI_API_KEY`: Your Google AI Studio Gemini API Key.
-4. Click **Deploy**. The application builds with zero configuration errors.
+1. **Qloo API Key (`QLOO_API_KEY`)**:
+   * TasteBrief queries Qloo's `/v2/insights` endpoint to pull real affinity scores for venues (`urn:entity:place`) and artists (`urn:entity:artist`).
+   * Get your key via the [Qloo Developer Portal](https://qloo.com).
+2. **Google Gemini API Key (`GEMINI_API_KEY`)**:
+   * Used to format the statistical divergence data into actionable operational memos and proof comparisons.
+   * Grab a free key in seconds from [Google AI Studio](https://aistudio.google.com/).
+
+> **Note:** If you run the project without setting keys in your `.env.local` file, that's completely fine! You can punch them in straight from the dashboard via the **API Keys** button in the header, and they'll save locally in your browser.
 
 ---
 
-## 💻 Local Development Setup
+## 🛠️ Step-by-Step Setup Guide
 
+### Step 1: Clone the Repository
+Open your terminal and clone the repository:
 ```bash
-# 1. Clone the repository
-git clone https://github.com/your-username/tastebrief.git
+git clone https://github.com/Philip-Ajayi/tastebrief.git
 cd tastebrief
+```
 
-# 2. Install dependencies
+### Step 2: Install Dependencies
+TasteBrief runs on **Node.js (18+ recommended)** with Next.js 14/15/16 App Router. Install packages via npm:
+```bash
 npm install
+```
 
-# 3. (Optional) Configure environment keys
+### Step 3: Configure Your Environment Variables
+Create a local `.env.local` file in the root folder:
+```bash
 cp .env.example .env.local
+```
+*(If `.env.example` isn't present, just create a new file named `.env.local`)*
 
-# 4. Start the development server
+Open `.env.local` in your editor and add your keys:
+```env
+# Required: Qloo v2 API Key (Passed as x-api-key)
+QLOO_API_KEY=your_qloo_api_key_here
+
+# Required: Google Gemini API Key
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# Optional: Set to true if you set server-side keys (updates the status indicator badge in the UI)
+NEXT_PUBLIC_HAS_ENV_KEYS=true
+```
+
+#### Why are these variables important?
+* Without `QLOO_API_KEY`, the server cannot retrieve the baseline vs. inbound affinity rankings from Qloo's taste engine.
+* Without `GEMINI_API_KEY`, the app cannot summarize the mathematical deltas into the printable action memo or run the benchmark proof test.
+* Keeping them in `.env.local` prevents accidental leakage of your private API credentials to GitHub (it is ignored by git).
+
+### Step 4: Run the Local Development Server
+Start the Next.js development server:
+```bash
 npm run dev
 ```
 
@@ -52,53 +72,70 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## 📐 Empirical Taste Divergence Architecture
+## 🧭 How to Use TasteBrief
+
+1. **Pick a Market Pairing**: Choose one of the preset global travel routes (e.g., *Lisbon ↔ Berlin*, *Tokyo ↔ Paris*) or toggle on **Custom City-Pair** to compare any destination city and origin market in the world.
+2. **Review Affinity Lift & Spikes**:
+   * **Venue Affinity Table**: See which local places over-index or under-index for the visiting market.
+   * **Tag Spikes**: Pinpoints surging sub-categories (e.g., *Pet-Nat*, *Filter Coffee*, *Vinyl Listening Bar*).
+3. **Inspect the Music Bridge**: Discover cross-genre artists whose listening graphs overlap between both cities to schedule soundtrack playlists for afternoon, aperitivo, and late-night services.
+4. **The Cultural Proof Test**: Directly contrasts lazy ungrounded LLM clichés against verified Qloo cultural graph realities.
+5. **Print or Export 1-Page Memo**: Click **"Print 1-Page Memo"** for a clean, paper-ready operational brief styled with custom `@media print` rules, ready to pin up behind the bar or pass to floor staff.
+6. **Live Telemetry (Inspector)**: Click **"Inspect API Logs"** in the top navigation at any time to inspect exact round-trip latencies, resolved query parameters, and raw JSON payloads.
+
+---
+
+## 🚢 Deploying to Vercel
+
+The easiest way to get TasteBrief live:
+
+1. Push your repository to GitHub.
+2. Import the project in your [Vercel Dashboard](https://vercel.com).
+3. In the **Environment Variables** section, paste:
+   * `QLOO_API_KEY`
+   * `GEMINI_API_KEY`
+   * `NEXT_PUBLIC_HAS_ENV_KEYS=true`
+4. Hit **Deploy**. Next.js App Router will build and launch immediately.
+
+---
+
+## 🗂️ Project Anatomy
 
 ```text
-               ┌──────────────────────────────────────────────┐
-               │         Operator Input: City Pair            │
-               │         (e.g., Lisbon + Berliners)           │
-               └──────────────────────┬───────────────────────┘
-                                      │
-                                      ▼
-               ┌──────────────────────────────────────────────┐
-               │         Qloo /v2/insights Orchestrator       │
-               │  Query A: Baseline Lisbon Dining & Music     │
-               │  Query B: Lisbon Dining + signal.loc=Berlin  │
-               └──────────────────────┬───────────────────────┘
-                                      │
-                                      ▼
-               ┌──────────────────────────────────────────────┐
-               │        Affinity Lift & Delta Engine          │
-               │  Calculates statistical lift % for venues,   │
-               │  beverage tags, and cross-domain artists     │
-               └──────────────────────┬───────────────────────┘
-                                      │
-                                      ▼
-               ┌──────────────────────────────────────────────┐
-               │     Constrained Action Copywriter (Gemini)   │
-               │     Formats delta ledger into a 1-page       │
-               │     exportable Venue Programming Action Memo │
-               └──────────────────────────────────────────────┘
+tastebrief/
+├── app/
+│   ├── api/
+│   │   ├── analyze/route.ts      # Multi-query Qloo orchestrator & Gemini pipeline
+│   │   └── benchmark/route.ts    # Comparative proof engine
+│   ├── globals.css               # Print styles & Tailwind design system
+│   ├── layout.tsx                # Metadata & typography fonts
+│   └── page.tsx                  # Dashboard state & orchestration
+├── components/
+│   ├── ActionMemoView.tsx        # Printable 1-page operator memo
+│   ├── AffinityLiftTable.tsx     # Percentage divergence & tag lift breakdown
+│   ├── ApiKeyModal.tsx           # In-browser key switcher
+│   ├── CityPairSelector.tsx      # Curated preset pairs + custom city search
+│   ├── Header.tsx                # Status indicators & quick tools
+│   ├── MusicBridgeCard.tsx       # Cross-city harmonic mean music overlap
+│   ├── NetworkInspectorModal.tsx # Live API telemetry & payload viewer
+│   └── ProofTestComparison.tsx   # Cliché vs. TasteBrief benchmark
+├── lib/
+│   ├── affinity-engine.ts        # Pure math lift & harmonic mean calculation
+│   ├── fixtures.ts               # Preset city routes & defaults
+│   ├── gemini-client.ts          # Constrained JSON generation
+│   └── qloo-client.ts            # Typed Qloo /v2/insights wrapper
+└── types/                        # TypeScript domain interfaces
 ```
 
-### Mathematical Lift Formula
-$$\text{Lift \%} = \left(\frac{\text{Score}_{\text{visitor}} - \text{Score}_{\text{baseline}}}{\text{Score}_{\text{baseline}}}\right) \times 100$$
+---
+
+## 💡 Tech Stack
+* **Framework:** Next.js (App Router), React, TypeScript
+* **Styling:** Tailwind CSS, Lucide Icons
+* **Data & Cultural Intelligence:** Qloo REST API (`/v2/insights`)
+* **Reasoning & Copywriting:** Google GenAI SDK (`gemini-3.5-flash-lite`)
 
 ---
 
-## 🧪 The Cultural Intelligence Proof Test
-
-| Dimension | Generic LLM Baseline (GPT-4 / Claude) | TasteBrief Powered by Qloo v2 |
-| :--- | :--- | :--- |
-| **Menu Pivots** | Bavarian pretzels, bratwurst, German lagers | Pet-Nat natural wine (+253.8% lift), Nordic batch brew (+80.7% lift) |
-| **Music Strategy** | Kraftwerk, generic techno, or traditional Portuguese Fado | Floating Points, Nils Frahm, Branko Kuduro-electronic crossovers |
-| **Atmosphere** | Dark industrial concrete & Berghain club steel | Sunlit tiled courtyards; industrial finishes under-index by -67.7% |
-| **Flaw/Reality** | Relies on insulting national stereotypes | Uncovers genuine lifestyle affinities between creative hubs |
-
----
-
-## 📄 Export & Operations
-
-* **1-Page Action Memo**: Click **"Print 1-Page Memo"** in the interface to trigger a clean, formatted physical printout styled specifically via `@media print` for bar managers and head baristas.
-* **JSON Export**: Download structured JSON including verified Qloo entity URNs for downstream point-of-sale or digital signage integrations.
+## 📄 License
+MIT. Built for independent hospitality innovators and curious cultural cartographers.
