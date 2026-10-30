@@ -62,7 +62,7 @@ Output ONLY a raw, valid JSON object matching this schema with no markdown forma
 `;
 
     const response = await this.ai.models.generateContent({
-      model: 'gemini-1.5-flash',
+      model: 'gemini-3.5-flash-lite',
       contents: prompt,
       config: {
         temperature: 0.2,
@@ -88,7 +88,7 @@ Output ONLY a raw, valid JSON object matching this schema with no markdown forma
       crossPromotions: parsed.crossPromotions,
       curatedEntityIds: parsed.curatedEntityIds || [surgingVenues[0]?.urn || 'urn:sample'],
       generatedAt: new Date().toISOString(),
-      engineUsed: 'Gemini 1.5 Flash (Constrained Qloo Grounding)',
+      engineUsed: 'Gemini 3.5 Flash-Lite (Constrained Qloo Grounding)',
     };
   }
 
