@@ -11,7 +11,14 @@ import { NetworkInspectorModal } from '@/components/NetworkInspectorModal';
 import { ApiKeyModal } from '@/components/ApiKeyModal';
 import { PRESET_CITY_PAIRS } from '@/lib/fixtures';
 import { CityPair, AnalysisResponse, NetworkCallLog } from '@/types';
-import { Loader2, ArrowUpRight, BarChart3, Sparkles, AlertCircle, Key } from 'lucide-react';
+import {
+  Loader2,
+  AlertCircle,
+  KeyRound,
+  ArrowUpRight,
+  Globe2,
+  ChartNoAxesCombined,
+} from 'lucide-react';
 
 export default function DashboardPage() {
   const [selectedPair, setSelectedPair] = useState<CityPair>(PRESET_CITY_PAIRS[0]);
@@ -20,11 +27,9 @@ export default function DashboardPage() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [networkLogs, setNetworkLogs] = useState<NetworkCallLog[]>([]);
 
-  // Key state (retrieved from localStorage on mount if available)
   const [customApiKey, setCustomApiKey] = useState<string>('');
   const [customGeminiKey, setCustomGeminiKey] = useState<string>('');
 
-  // Modals
   const [isInspectorOpen, setIsInspectorOpen] = useState<boolean>(false);
   const [isKeyModalOpen, setIsKeyModalOpen] = useState<boolean>(false);
 
@@ -69,7 +74,7 @@ export default function DashboardPage() {
       setAnalysisData(data);
       setNetworkLogs(data.networkLogs || []);
     } catch (err: any) {
-      setErrorMessage(err.message || 'Failed to communicate with live cultural endpoints.');
+      setErrorMessage(err.message || 'Could not connect to the analysis service.');
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +112,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#F7F6F2] text-[#20251F]">
       <Header
         onOpenInspector={() => setIsInspectorOpen(true)}
         onOpenKeyModal={() => setIsKeyModalOpen(true)}
@@ -115,28 +120,48 @@ export default function DashboardPage() {
         hasEnvKey={Boolean(process.env.NEXT_PUBLIC_HAS_ENV_KEYS)}
       />
 
-      <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 w-full">
-        {/* Hero Value Banner */}
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-surface to-surface-elevated border border-surface-border p-6 sm:p-10 shadow-2xl">
-          <div className="relative z-10 max-w-3xl">
-            <div className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-300 text-xs font-mono mb-4">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Cross-Border Visitor Taste Intelligence</span>
+      <main className="flex-1 w-full max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 py-8 lg:py-12">
+
+        {/* Page introduction */}
+        <section className="relative overflow-hidden rounded-[28px] bg-[#202B25] text-white mb-8">
+          <div className="absolute right-0 top-0 w-[420px] h-[420px] rounded-full border border-white/[0.06] translate-x-1/3 -translate-y-1/3" />
+          <div className="absolute right-12 top-10 w-[280px] h-[280px] rounded-full border border-white/[0.06]" />
+          <div className="absolute right-28 top-24 w-[140px] h-[140px] rounded-full bg-[#A8B58B]/10 blur-3xl" />
+
+          <div className="relative z-10 px-7 py-10 sm:px-12 sm:py-14 lg:py-16 max-w-4xl">
+            <div className="flex items-center gap-2 mb-7">
+              <span className="w-8 h-px bg-[#B6C49B]" />
+              <span className="text-[10px] sm:text-xs uppercase tracking-[0.24em] text-[#C4D0B0] font-semibold">
+                TasteBrief · Hospitality Intelligence
+              </span>
             </div>
-            <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-              Stop serving pretzels to Berliners in Lisbon.
+
+            <h1 className="font-display text-[38px] sm:text-5xl lg:text-[64px] leading-[1.08] tracking-[-0.045em] max-w-3xl">
+              Know what your guests love.
+              <span className="block text-[#BBC9A4]">Before they walk in.</span>
             </h1>
-            <p className="mt-3 text-sm sm:text-base text-gray-300 leading-relaxed">
-              TasteBrief queries Qloo’s Taste Graph in real time to calculate the mathematical taste divergence between domestic venue baselines and incoming international travelers.
+
+            <p className="mt-6 text-sm sm:text-base text-white/65 leading-7 max-w-xl">
+              Understand what international visitors enjoy, discover what
+              local venues are missing, and make better decisions about
+              your menu, music and atmosphere.
             </p>
-          </div>
 
-          <div className="absolute right-0 bottom-0 translate-x-8 translate-y-8 opacity-10 pointer-events-none hidden lg:block">
-            <BarChart3 className="w-80 h-80 text-white" />
+            <div className="mt-9 flex flex-wrap items-center gap-5 text-xs text-white/55">
+              <div className="flex items-center gap-2">
+                <Globe2 className="w-4 h-4 text-[#BBC9A4]" />
+                Cross-border taste insights
+              </div>
+              <span className="hidden sm:block w-1 h-1 rounded-full bg-white/30" />
+              <div className="flex items-center gap-2">
+                <ChartNoAxesCombined className="w-4 h-4 text-[#BBC9A4]" />
+                Real-world recommendations
+              </div>
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* City-Pair Selector */}
+        {/* Market selection */}
         <CityPairSelector
           selectedPair={selectedPair}
           onSelectPreset={handleSelectPreset}
@@ -144,39 +169,76 @@ export default function DashboardPage() {
           isLoading={isLoading}
         />
 
-        {/* Error Alert Banner */}
+        {/* Error */}
         {errorMessage && (
-          <div className="p-5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="mt-7 rounded-2xl border border-[#E9C5BE] bg-[#FFF5F2] p-5 sm:p-6 flex flex-col sm:flex-row justify-between gap-5">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-400" />
+              <div className="w-9 h-9 shrink-0 rounded-full bg-[#F9E3DE] flex items-center justify-center">
+                <AlertCircle className="w-4 h-4 text-[#B85C4A]" />
+              </div>
               <div>
-                <h4 className="font-bold text-sm text-white">Live Query Failed</h4>
-                <p className="text-xs text-rose-200 mt-1">{errorMessage}</p>
+                <h3 className="text-sm font-semibold text-[#8E4035]">
+                  We couldn't complete the analysis
+                </h3>
+                <p className="text-sm text-[#A15E52] mt-1 leading-relaxed">
+                  {errorMessage}
+                </p>
               </div>
             </div>
             <button
               onClick={() => setIsKeyModalOpen(true)}
-              className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-xs font-semibold text-white transition-colors flex-shrink-0"
+              className="shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#28382F] text-white text-xs font-semibold hover:bg-[#354A3E] transition-colors"
             >
-              <Key className="w-3.5 h-3.5" />
-              <span>Configure Live API Keys</span>
+              <KeyRound className="w-3.5 h-3.5" />
+              Check API keys
             </button>
           </div>
         )}
 
-        {/* Loading Spinner */}
+        {/* Loading */}
         {isLoading && (
-          <div className="flex flex-col items-center justify-center py-16 space-y-3">
-            <Loader2 className="w-8 h-8 text-brand-500 animate-spin" />
-            <span className="text-xs font-mono text-gray-400">
-              Executing Live Qloo /v2/insights Queries & Calculating Affinity Lift...
-            </span>
+          <div className="mt-8 rounded-[24px] bg-white border border-[#E9E8E1] min-h-[300px] flex flex-col items-center justify-center text-center px-6">
+            <div className="w-14 h-14 rounded-2xl bg-[#EFF1E9] flex items-center justify-center mb-5">
+              <Loader2 className="w-6 h-6 text-[#637A54] animate-spin" />
+            </div>
+            <h3 className="font-display text-xl text-[#29342C]">
+              Looking at the bigger picture
+            </h3>
+            <p className="text-sm text-[#898D83] mt-2 max-w-sm leading-6">
+              Comparing local tastes with visitor preferences. Your results
+              will appear here shortly.
+            </p>
+            <div className="mt-6 w-40 h-1 rounded-full bg-[#EBEDE6] overflow-hidden">
+              <div className="h-full w-1/2 bg-[#879A71] rounded-full animate-pulse" />
+            </div>
           </div>
         )}
 
-        {/* Content Modules (Only rendered when live data succeeds) */}
+        {/* Analysis results */}
         {!isLoading && analysisData && (
-          <div className="space-y-8">
+          <div className="mt-10 space-y-9 animate-fadeIn">
+
+            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3">
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="w-2 h-2 rounded-full bg-[#7D986B]" />
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#77846D]">
+                    Analysis results
+                  </span>
+                </div>
+                <h2 className="font-display text-3xl sm:text-4xl tracking-tight text-[#252D26]">
+                  What the data tells us
+                </h2>
+                <p className="text-sm text-[#85877F] mt-2">
+                  Insights for {selectedPair.destinationCity}, based on
+                  visitors from {selectedPair.originCity}.
+                </p>
+              </div>
+              <div className="text-xs text-[#8B8D83]">
+                Powered by Qloo insights
+              </div>
+            </div>
+
             <AffinityLiftTable
               venues={analysisData.affinityLiftVenues}
               tags={analysisData.tagDivergences}
@@ -197,6 +259,29 @@ export default function DashboardPage() {
         )}
       </main>
 
+      <footer className="border-t border-[#E8E7DF] bg-[#F2F1EC] mt-16 print:hidden">
+        <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12 py-7 flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div>
+            <span className="font-display text-lg font-semibold text-[#27332A]">
+              TasteBrief
+            </span>
+            <p className="text-[11px] text-[#96968D] mt-1">
+              Better hospitality starts with understanding people.
+            </p>
+          </div>
+
+          <a
+            href="https://qloo.com"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 text-xs font-medium text-[#687B5C] hover:text-[#344A37] transition-colors"
+          >
+            Qloo documentation
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </a>
+        </div>
+      </footer>
+
       <NetworkInspectorModal
         isOpen={isInspectorOpen}
         onClose={() => setIsInspectorOpen(false)}
@@ -210,26 +295,6 @@ export default function DashboardPage() {
         currentQlooKey={customApiKey}
         currentGeminiKey={customGeminiKey}
       />
-
-      <footer className="border-t border-surface-border bg-background py-6 mt-12 print:hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
-          <div className="flex items-center space-x-2">
-            <span>TasteBrief</span>
-            <span>•</span>
-            <span>Live Qloo v2 Cultural Taste Intelligence Protocol</span>
-          </div>
-          <div className="flex items-center space-x-4">
-            <a
-              href="https://qloo.com"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-gray-300 transition-colors flex items-center gap-1 font-mono"
-            >
-              Qloo v2 API Docs <ArrowUpRight className="w-3 h-3" />
-            </a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

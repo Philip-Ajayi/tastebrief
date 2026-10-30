@@ -1,7 +1,14 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Key, Check, AlertCircle } from 'lucide-react';
+import {
+  X,
+  KeyRound,
+  Check,
+  ShieldCheck,
+  Info,
+  LockKeyhole,
+} from 'lucide-react';
 
 interface ApiKeyModalProps {
   isOpen: boolean;
@@ -35,75 +42,105 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
-      <div className="bg-surface border border-surface-border rounded-2xl w-full max-w-md p-6 shadow-2xl relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#172019]/55 backdrop-blur-sm animate-fadeIn">
 
-        <div className="flex items-center space-x-2 mb-4">
-          <Key className="w-5 h-5 text-brand-400" />
-          <h3 className="text-base font-bold text-white">Live API Key Configuration</h3>
+      <div className="bg-white border border-[#E8E8DF] rounded-[26px] w-full max-w-[470px] shadow-[0_25px_100px_rgba(0,0,0,0.2)] overflow-hidden">
+
+        <div className="bg-[#29382F] p-6 sm:p-7 relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-40 h-40 rounded-full border border-white/10 translate-x-1/3 -translate-y-1/3" />
+
+          <button
+            onClick={onClose}
+            className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-lg text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          <div className="relative z-10">
+            <div className="w-11 h-11 rounded-xl bg-white/10 flex items-center justify-center mb-5">
+              <KeyRound className="w-5 h-5 text-[#D0DABF]" />
+            </div>
+
+            <h3 className="font-display text-2xl text-white">
+              Connect your accounts
+            </h3>
+            <p className="text-xs text-white/55 mt-2 leading-6 max-w-xs">
+              Add your API keys to connect TasteBrief to live taste data and recommendations.
+            </p>
+          </div>
         </div>
 
-        <div className="mb-4 p-3 bg-brand-500/10 border border-brand-500/20 rounded-xl text-xs text-brand-300 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-          <span>
-            TasteBrief runs 100% on live endpoints. Provide your valid Qloo <code className="font-mono text-white">x-api-key</code> and Google Gemini API key below to query live cultural graph data.
-          </span>
-        </div>
+        <form onSubmit={handleSave} className="p-6 sm:p-7 space-y-5">
 
-        <form onSubmit={handleSave} className="space-y-4">
           <div>
-            <label className="block text-xs font-mono text-gray-300 mb-1">
-              Qloo API Key (<code className="text-brand-300">x-api-key</code>)
+            <label className="field-label">
+              Qloo API key
             </label>
             <input
               type="password"
               value={qloo}
               onChange={(e) => setQloo(e.target.value)}
-              placeholder="e.g. qloo_live_..."
-              className="w-full bg-surface-elevated border border-surface-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500 font-mono"
+              placeholder="Enter your Qloo API key"
+              className="premium-input"
               required
             />
+            <p className="text-[10px] text-[#A0A196] mt-2">
+              Used to retrieve venue and cultural preferences.
+            </p>
           </div>
 
           <div>
-            <label className="block text-xs font-mono text-gray-300 mb-1">
-              Google AI Studio Gemini API Key
+            <label className="field-label">
+              Google Gemini API key
             </label>
             <input
               type="password"
               value={gemini}
               onChange={(e) => setGemini(e.target.value)}
-              placeholder="e.g. AIzaSy..."
-              className="w-full bg-surface-elevated border border-surface-border rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500 font-mono"
+              placeholder="Enter your Gemini API key"
+              className="premium-input"
               required
             />
+            <p className="text-[10px] text-[#A0A196] mt-2">
+              Used to prepare your recommendations.
+            </p>
           </div>
 
-          <div className="pt-2 flex justify-end space-x-2">
+          <div className="rounded-xl bg-[#F5F7F2] border border-[#E6EBDF] p-4 flex items-start gap-3">
+            <LockKeyhole className="w-4 h-4 text-[#738667] shrink-0 mt-0.5" />
+            <div>
+              <p className="text-xs font-semibold text-[#506047]">
+                Your keys stay in your browser
+              </p>
+              <p className="text-[11px] text-[#899183] mt-1 leading-5">
+                Keys are saved in this browser and sent with analysis requests.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-surface-elevated text-xs text-gray-300 hover:bg-gray-700 transition-colors"
+              className="px-4 py-3 text-xs font-semibold text-[#777B70] hover:text-[#333F35] transition-colors"
             >
               Cancel
             </button>
+
             <button
               type="submit"
-              className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-xs font-semibold text-white transition-colors"
+              className="inline-flex items-center justify-center gap-2 min-w-[155px] px-5 py-3 rounded-xl bg-[#354B3C] text-white text-xs font-semibold hover:bg-[#26392D] transition-colors"
             >
               {saved ? (
                 <>
-                  <Check className="w-3.5 h-3.5" />
-                  <span>Saved!</span>
+                  <Check className="w-4 h-4" />
+                  Saved
                 </>
               ) : (
-                <span>Save Keys & Run</span>
+                <>
+                  <ShieldCheck className="w-4 h-4" />
+                  Save and connect
+                </>
               )}
             </button>
           </div>

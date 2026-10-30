@@ -2,61 +2,145 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --page: #F7F6F2;
+  --surface: #FFFFFF;
+  --surface-soft: #F1F1EB;
+  --border: #E8E7DF;
+  --ink: #252D26;
+  --muted: #85877F;
+  --green: #637A54;
+  --green-dark: #29382F;
+  --olive: #A8B58B;
+  --amber: #B58A50;
+}
+
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    @apply bg-background text-gray-100 antialiased font-sans selection:bg-brand-500 selection:text-white;
+    @apply antialiased;
+    background: var(--page);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-feature-settings: 'ss01' on;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  ::selection {
+    background: #DCE5D1;
+    color: #29382F;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid #879A71;
+    outline-offset: 3px;
   }
 }
 
-/* Print Styles for 1-Page Operational Memo Export */
-@media print {
-  body {
-    background: #ffffff !important;
-    color: #000000 !important;
+.font-display {
+  font-family: 'DM Serif Display', Georgia, serif;
+}
+
+@layer components {
+  .premium-card {
+    @apply bg-white border rounded-[22px];
+    border-color: var(--border);
+    box-shadow: 0 2px 8px rgba(39, 49, 39, 0.025),
+      0 12px 35px rgba(39, 49, 39, 0.025);
   }
-  header,
-  footer,
-  .print\:hidden {
-    display: none !important;
+
+  .section-label {
+    @apply text-[10px] font-bold uppercase tracking-[0.2em];
+    color: #78856F;
   }
-  .print\:block {
-    display: block !important;
+
+  .field-label {
+    @apply block text-xs font-semibold mb-2;
+    color: #535C51;
   }
-  @page {
-    margin: 1.5cm;
-    size: A4 portrait;
+
+  .premium-input {
+    @apply w-full rounded-xl border bg-white px-4 py-3 text-sm transition-all;
+    border-color: #E5E5DC;
+    color: #29332B;
+  }
+
+  .premium-input::placeholder {
+    color: #AAA99F;
+  }
+
+  .premium-input:focus {
+    outline: none;
+    border-color: #829773;
+    box-shadow: 0 0 0 3px rgba(130, 151, 115, 0.12);
+  }
+
+  .primary-button {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-semibold text-white transition-all;
+    background: #354B3C;
+  }
+
+  .primary-button:hover {
+    background: #26392D;
+    transform: translateY(-1px);
+  }
+
+  .primary-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
   }
 }
 
-/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
+
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #F1F0EA;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #1f2937;
-  border-radius: 9999px;
+  background: #D1D2C7;
+  border-radius: 20px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: #374151;
+  background: #A9AD9D;
 }
 
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(0.98);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0);
   }
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.15s ease-out forwards;
+  animation: fadeIn 0.35s ease-out both;
 }
 
 @keyframes spinSlow {
@@ -70,4 +154,63 @@
 
 .animate-spin-slow {
   animation: spinSlow 12s linear infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 1.8s ease-in-out infinite;
+}
+
+/* Printed action memo */
+@media print {
+  html,
+  body {
+    background: #FFFFFF !important;
+    color: #20251F !important;
+    font-family: Arial, sans-serif !important;
+  }
+
+  header,
+  footer,
+  .print\:hidden {
+    display: none !important;
+  }
+
+  .print\:block {
+    display: block !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .print\:shadow-none {
+    box-shadow: none !important;
+  }
+
+  @page {
+    margin: 1.2cm;
+    size: A4 portrait;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
 }

@@ -2,7 +2,13 @@
 
 import React from 'react';
 import { MusicBridgeArtist } from '@/types';
-import { Disc3, Radio, Clock, Sparkles } from 'lucide-react';
+import {
+  Disc3,
+  Clock,
+  Music2,
+  Radio,
+  ArrowUpRight,
+} from 'lucide-react';
 
 interface MusicBridgeCardProps {
   music: MusicBridgeArtist[];
@@ -16,53 +22,87 @@ export const MusicBridgeCard: React.FC<MusicBridgeCardProps> = ({
   destinationCity,
 }) => {
   return (
-    <div className="bg-surface rounded-2xl border border-surface-border p-6 shadow-xl">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-6">
-        <div>
-          <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <Disc3 className="w-5 h-5 text-purple-400 animate-spin-slow" />
-            Cross-Domain Music Bridge
-          </h3>
-          <p className="text-xs text-gray-400 mt-0.5">
-            Artists that over-index across both {originCity} and {destinationCity} cultural taste graphs.
-          </p>
-        </div>
-        <div className="flex items-center space-x-1 text-xs font-mono text-purple-400 bg-purple-500/10 px-3 py-1 rounded-full border border-purple-500/20">
-          <Radio className="w-3.5 h-3.5" />
-          <span>urn:entity:artist</span>
+    <section className="premium-card overflow-hidden">
+
+      <div className="p-6 sm:p-8 border-b border-[#ECEBE5]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="section-label mb-2">03 · Music and atmosphere</div>
+            <h3 className="font-display text-2xl sm:text-3xl text-[#29342C] tracking-tight">
+              Find the common ground
+            </h3>
+            <p className="text-sm text-[#898B81] mt-2 leading-6 max-w-xl">
+              Artists that connect the musical tastes of visitors from
+              {` ${originCity}`} with the culture of {destinationCity}.
+            </p>
+          </div>
+
+          <div className="w-12 h-12 rounded-2xl bg-[#F0EFE9] flex items-center justify-center shrink-0">
+            <Disc3 className="w-6 h-6 text-[#788765]" />
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
         {music.map((item, idx) => (
-          <div
+          <article
             key={idx}
-            className="flex flex-col justify-between p-4 rounded-xl bg-surface-elevated/40 border border-surface-border hover:border-purple-500/50 transition-all"
+            className={`p-6 sm:p-7 flex flex-col justify-between min-h-[245px] hover:bg-[#FAFBF8] transition-colors ${
+              idx !== 0 ? 'border-t md:border-t-0 md:border-l border-[#ECEBE5]' : ''
+            } ${idx > 1 ? 'xl:border-l' : ''}`}
           >
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-purple-500/20 text-purple-300">
+              <div className="flex items-center justify-between gap-3 mb-6">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-[#F0F2EA] text-[#657858] px-3 py-1.5 text-[10px] font-semibold capitalize">
+                  <Music2 className="w-3 h-3" />
                   {item.subgenre}
                 </span>
-                <div className="flex items-center space-x-1 text-xs font-mono text-emerald-400">
-                  <Sparkles className="w-3 h-3" />
-                  <span>{(item.harmonicOverlapScore * 100).toFixed(0)}% Overlap</span>
+
+                <div className="text-xs font-bold text-[#657D54] tabular-nums">
+                  {(item.harmonicOverlapScore * 100).toFixed(0)}%
+                  <span className="text-[#A0A297] font-normal ml-1">match</span>
                 </div>
               </div>
 
-              <h4 className="font-bold text-white text-base mb-1">{item.name}</h4>
-              <p className="text-xs text-gray-400 leading-relaxed mb-4">{item.rationale}</p>
+              <h4 className="font-display text-[26px] text-[#303B32] tracking-tight leading-tight">
+                {item.name}
+              </h4>
+
+              <p className="text-xs text-[#888B80] mt-3 leading-[1.8]">
+                {item.rationale}
+              </p>
             </div>
 
-            <div className="pt-3 border-t border-surface-border/60">
-              <div className="flex items-center text-[11px] font-mono text-brand-300">
-                <Clock className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
-                <span>Slot: {item.recommendedTimeSlot}</span>
+            <div className="mt-7 pt-4 border-t border-[#ECEBE5] flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-[#F0F2EA] flex items-center justify-center shrink-0">
+                <Clock className="w-3.5 h-3.5 text-[#788968]" />
+              </div>
+              <div>
+                <p className="text-[9px] uppercase tracking-wider text-[#A0A095]">
+                  Suggested time
+                </p>
+                <p className="text-xs font-semibold text-[#485447] mt-0.5">
+                  {item.recommendedTimeSlot}
+                </p>
               </div>
             </div>
-          </div>
+          </article>
         ))}
+
+        {music.length === 0 && (
+          <div className="col-span-full py-12 text-center text-sm text-[#92948B]">
+            No music recommendations available.
+          </div>
+        )}
       </div>
-    </div>
+
+      <div className="px-6 sm:px-8 py-4 bg-[#FAFAF7] border-t border-[#ECEBE5] flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2 text-[11px] text-[#909287]">
+          <Radio className="w-3.5 h-3.5 text-[#839174]" />
+          Music preferences across both markets
+        </div>
+        <ArrowUpRight className="w-4 h-4 text-[#A2A598]" />
+      </div>
+    </section>
   );
 };

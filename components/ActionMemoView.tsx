@@ -2,7 +2,16 @@
 
 import React from 'react';
 import { ActionMemo } from '@/types';
-import { Printer, Download, Sparkles, CheckCircle, FileText } from 'lucide-react';
+import {
+  Printer,
+  Download,
+  CheckCircle2,
+  FileText,
+  Clock,
+  MapPin,
+  Music2,
+  ArrowUpRight,
+} from 'lucide-react';
 
 interface ActionMemoViewProps {
   memo: ActionMemo;
@@ -24,159 +33,306 @@ export const ActionMemoView: React.FC<ActionMemoViewProps> = ({ memo }) => {
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-surface-border p-6 sm:p-8 shadow-2xl relative print:bg-white print:text-black print:border-none print:shadow-none">
-      {/* Action Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-surface-border gap-4 print:border-black">
-        <div>
-          <div className="flex items-center space-x-2">
-            <FileText className="w-5 h-5 text-brand-400 print:text-black" />
-            <h2 className="text-xl font-bold text-white print:text-black">
-              Venue Programming Action Memo
-            </h2>
-          </div>
-          <p className="text-xs text-gray-400 print:text-gray-600 mt-1 font-mono">
-            Target Market: {memo.destinationCity} Venue Operations ↔ {memo.originCity} Visitor Inbound
-          </p>
-        </div>
+    <section className="bg-white border border-[#E4E4DB] rounded-[26px] overflow-hidden shadow-[0_4px_30px_rgba(35,45,35,0.04)] print:shadow-none print:border-none print:rounded-none">
 
-        <div className="flex items-center space-x-2 print:hidden">
-          <button
-            onClick={handleDownloadJson}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-surface-elevated hover:bg-gray-700 text-xs text-gray-300 border border-surface-border transition-colors font-mono"
-          >
-            <Download className="w-3.5 h-3.5" />
-            <span>JSON</span>
-          </button>
-          <button
-            onClick={handlePrint}
-            className="flex items-center space-x-1.5 px-4 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-xs font-semibold text-white transition-colors shadow-sm"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            <span>Print 1-Page Memo</span>
-          </button>
+      {/* Document cover */}
+      <div className="bg-[#29382F] text-white p-7 sm:p-10 lg:p-12 relative overflow-hidden print:bg-white print:text-black">
+        <div className="absolute right-0 top-0 w-80 h-80 rounded-full border border-white/[0.07] translate-x-1/3 -translate-y-1/3 print:hidden" />
+        <div className="absolute right-16 top-12 w-52 h-52 rounded-full border border-white/[0.07] print:hidden" />
+
+        <div className="relative z-10">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
+            <div>
+              <div className="flex items-center gap-2 text-[#C1D0AD] mb-7">
+                <FileText className="w-4 h-4" />
+                <span className="text-[10px] uppercase tracking-[0.22em] font-bold">
+                  TasteBrief · Recommendations
+                </span>
+              </div>
+
+              <p className="text-[10px] uppercase tracking-[0.2em] text-white/50 mb-3 print:text-gray-500">
+                Your venue action plan
+              </p>
+
+              <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl leading-tight tracking-tight max-w-2xl">
+                A better experience for your next guest.
+              </h2>
+
+              <p className="mt-4 text-sm text-white/65 leading-7 max-w-xl print:text-gray-600">
+                Practical recommendations for your menu, music and atmosphere,
+                based on the tastes of visitors from {memo.originCity}.
+              </p>
+            </div>
+
+            <div className="flex gap-2 shrink-0 print:hidden">
+              <button
+                onClick={handleDownloadJson}
+                className="inline-flex items-center gap-2 px-3 py-2.5 rounded-xl border border-white/15 text-white/80 text-xs font-medium hover:bg-white/10 transition-colors"
+              >
+                <Download className="w-3.5 h-3.5" />
+                JSON
+              </button>
+
+              <button
+                onClick={handlePrint}
+                className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#D0DABF] text-[#29382F] text-xs font-bold hover:bg-[#DFE8D1] transition-colors"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                Print memo
+              </button>
+            </div>
+          </div>
+
+          <div className="mt-10 pt-6 border-t border-white/15 grid grid-cols-2 sm:grid-cols-4 gap-6 print:border-gray-300">
+            <div>
+              <p className="text-[9px] uppercase tracking-[0.17em] text-white/45 mb-2 print:text-gray-500">
+                Venue location
+              </p>
+              <p className="text-sm font-semibold print:text-black">
+                {memo.destinationCity}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[9px] uppercase tracking-[0.17em] text-white/45 mb-2 print:text-gray-500">
+                Visitor market
+              </p>
+              <p className="text-sm font-semibold text-[#D0DABF] print:text-black">
+                {memo.originCity}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[9px] uppercase tracking-[0.17em] text-white/45 mb-2 print:text-gray-500">
+                Venue type
+              </p>
+              <p className="text-sm font-semibold capitalize print:text-black">
+                {memo.venueType.replace(/_/g, ' ')}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-[9px] uppercase tracking-[0.17em] text-white/45 mb-2 print:text-gray-500">
+                Prepared with
+              </p>
+              <p className="text-sm font-semibold print:text-black">
+                {memo.engineUsed}
+              </p>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Memo Meta */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-4 border-b border-surface-border/60 text-xs font-mono print:border-gray-300">
-        <div>
-          <span className="text-gray-500 block">DESTINATION</span>
-          <span className="text-white print:text-black font-semibold">{memo.destinationCity}</span>
-        </div>
-        <div>
-          <span className="text-gray-500 block">INBOUND SIGNAL</span>
-          <span className="text-brand-400 print:text-black font-semibold">{memo.originCity}</span>
-        </div>
-        <div>
-          <span className="text-gray-500 block">CONCEPT TYPE</span>
-          <span className="text-white print:text-black font-semibold capitalize">{memo.venueType}</span>
-        </div>
-        <div>
-          <span className="text-gray-500 block">ENGINE</span>
-          <span className="text-emerald-400 print:text-black font-semibold truncate block">
-            {memo.engineUsed}
-          </span>
-        </div>
-      </div>
+      {/* Document content */}
+      <div className="p-6 sm:p-9 lg:p-10 print:p-4">
 
-      {/* Body Content */}
-      <div className="py-6 space-y-6 text-sm">
-        {/* Executive Summary */}
-        <div>
-          <h4 className="text-xs font-mono uppercase text-gray-400 print:text-gray-700 tracking-wider mb-2">
-            Executive Summary
-          </h4>
-          <p className="text-gray-200 print:text-black leading-relaxed font-sans bg-surface-elevated/30 print:bg-transparent p-4 rounded-xl border border-surface-border/40 print:border-none">
-            {memo.executiveSummary}
-          </p>
-        </div>
-
-        {/* Operational Adjustments Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Beverage & Culinary Adjustments */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-mono uppercase text-brand-400 print:text-black tracking-wider flex items-center gap-1.5">
-              <CheckCircle className="w-3.5 h-3.5" />
-              Beverage & Menu Pivots
-            </h4>
-            <ul className="space-y-2 text-xs text-gray-300 print:text-gray-800">
-              {memo.beverageAdjustments.map((item, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <span className="text-brand-500 font-bold">•</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
+        {/* Summary */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="w-8 h-8 rounded-lg bg-[#EFF2E9] flex items-center justify-center text-xs font-bold text-[#687D59]">
+              01
+            </span>
+            <div>
+              <h3 className="font-display text-xl text-[#303B32]">
+                The big picture
+              </h3>
+              <p className="text-[10px] text-[#9B9C91] mt-0.5">
+                A quick look at what matters most
+              </p>
+            </div>
           </div>
 
-          {/* Spatial & Aesthetic Programming */}
-          <div className="space-y-3">
-            <h4 className="text-xs font-mono uppercase text-accent-emerald print:text-black tracking-wider flex items-center gap-1.5">
-              <CheckCircle className="w-3.5 h-3.5" />
-              Spatial & Atmosphere Alignment
-            </h4>
-            <ul className="space-y-2 text-xs text-gray-300 print:text-gray-800">
-              {memo.spatialAtmosphere.map((item, i) => (
-                <li key={i} className="flex items-start gap-2">
-                  <span className="text-accent-emerald font-bold">•</span>
-                  <span>{item}</span>
-                </li>
-              ))}
-            </ul>
+          <div className="ml-0 sm:ml-11 rounded-2xl bg-[#F7F8F4] border border-[#ECEEE6] p-5 sm:p-6 print:bg-white print:border-gray-300">
+            <p className="text-sm text-[#535C51] leading-[1.9]">
+              {memo.executiveSummary}
+            </p>
           </div>
         </div>
 
-        {/* Music Programming Slots */}
-        <div className="p-4 rounded-xl bg-surface-elevated/40 print:bg-gray-100 border border-surface-border print:border-gray-300 space-y-3">
-          <h4 className="text-xs font-mono uppercase text-purple-400 print:text-black tracking-wider flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" />
-            Curated Soundtrack Schedule
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+        {/* Menu and atmosphere */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-5">
+            <span className="w-8 h-8 rounded-lg bg-[#EFF2E9] flex items-center justify-center text-xs font-bold text-[#687D59]">
+              02
+            </span>
             <div>
-              <span className="font-mono text-gray-400 print:text-gray-600 block text-[10px]">
-                AFTERNOON (11:00 - 16:00)
-              </span>
-              <p className="text-gray-200 print:text-black mt-1">{memo.musicalProgramming.afternoon}</p>
+              <h3 className="font-display text-xl text-[#303B32]">
+                What to change
+              </h3>
+              <p className="text-[10px] text-[#9B9C91] mt-0.5">
+                Small changes that can make a difference
+              </p>
             </div>
-            <div>
-              <span className="font-mono text-gray-400 print:text-gray-600 block text-[10px]">
-                APERITIVO (16:00 - 21:00)
-              </span>
-              <p className="text-gray-200 print:text-black mt-1">{memo.musicalProgramming.evening}</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:ml-11">
+            <div className="rounded-2xl border border-[#E9EAE2] p-5 sm:p-6">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-9 h-9 rounded-xl bg-[#F4EFE5] flex items-center justify-center">
+                  <CheckCircle2 className="w-4 h-4 text-[#A58A57]" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-[#424C40]">
+                    Food and drinks
+                  </h4>
+                  <p className="text-[10px] text-[#9A9B90] mt-0.5">
+                    Menu recommendations
+                  </p>
+                </div>
+              </div>
+
+              <ul className="space-y-4">
+                {memo.beverageAdjustments.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-xs text-[#70776B] leading-[1.8]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#A4B18E] shrink-0 mt-1.5" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div>
-              <span className="font-mono text-gray-400 print:text-gray-600 block text-[10px]">
-                LATE NIGHT (21:00 - CLOSE)
-              </span>
-              <p className="text-gray-200 print:text-black mt-1">{memo.musicalProgramming.lateNight}</p>
+
+            <div className="rounded-2xl border border-[#E9EAE2] p-5 sm:p-6">
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-9 h-9 rounded-xl bg-[#EEF1E9] flex items-center justify-center">
+                  <MapPin className="w-4 h-4 text-[#728665]" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-[#424C40]">
+                    Space and atmosphere
+                  </h4>
+                  <p className="text-[10px] text-[#9A9B90] mt-0.5">
+                    The guest experience
+                  </p>
+                </div>
+              </div>
+
+              <ul className="space-y-4">
+                {memo.spatialAtmosphere.map((item, i) => (
+                  <li key={i} className="flex items-start gap-3 text-xs text-[#70776B] leading-[1.8]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#A4B18E] shrink-0 mt-1.5" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
 
-        {/* Cross Promotions */}
-        <div>
-          <h4 className="text-xs font-mono uppercase text-gray-400 print:text-gray-700 tracking-wider mb-2">
-            Local Micro-Brand Activations
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-gray-300 print:text-gray-800">
+        {/* Music schedule */}
+        <div className="mb-10">
+          <div className="flex items-center gap-3 mb-5">
+            <span className="w-8 h-8 rounded-lg bg-[#EFF2E9] flex items-center justify-center text-xs font-bold text-[#687D59]">
+              03
+            </span>
+            <div>
+              <h3 className="font-display text-xl text-[#303B32]">
+                Set the right mood
+              </h3>
+              <p className="text-[10px] text-[#9B9C91] mt-0.5">
+                Music suggestions throughout the day
+              </p>
+            </div>
+          </div>
+
+          <div className="sm:ml-11 rounded-2xl overflow-hidden border border-[#E8E9E1]">
+            <div className="bg-[#F7F8F4] px-5 py-4 border-b border-[#E8E9E1] flex items-center gap-2 print:bg-white">
+              <Music2 className="w-4 h-4 text-[#71845F]" />
+              <span className="text-xs font-semibold text-[#465342]">
+                Daily music schedule
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[#E8E9E1]">
+              <div className="p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Clock className="w-3.5 h-3.5 text-[#A28D68]" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#8D907F]">
+                    Afternoon
+                  </span>
+                </div>
+                <p className="text-[10px] text-[#A4A599] mb-2">11:00 – 16:00</p>
+                <p className="text-xs text-[#586253] leading-[1.8]">
+                  {memo.musicalProgramming.afternoon}
+                </p>
+              </div>
+
+              <div className="p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Clock className="w-3.5 h-3.5 text-[#A28D68]" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#8D907F]">
+                    Evening
+                  </span>
+                </div>
+                <p className="text-[10px] text-[#A4A599] mb-2">16:00 – 21:00</p>
+                <p className="text-xs text-[#586253] leading-[1.8]">
+                  {memo.musicalProgramming.evening}
+                </p>
+              </div>
+
+              <div className="p-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Clock className="w-3.5 h-3.5 text-[#A28D68]" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#8D907F]">
+                    Late night
+                  </span>
+                </div>
+                <p className="text-[10px] text-[#A4A599] mb-2">21:00 – Close</p>
+                <p className="text-xs text-[#586253] leading-[1.8]">
+                  {memo.musicalProgramming.lateNight}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Partnerships */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-5">
+            <span className="w-8 h-8 rounded-lg bg-[#EFF2E9] flex items-center justify-center text-xs font-bold text-[#687D59]">
+              04
+            </span>
+            <div>
+              <h3 className="font-display text-xl text-[#303B32]">
+                People to work with
+              </h3>
+              <p className="text-[10px] text-[#9B9C91] mt-0.5">
+                Local partnerships and collaborations
+              </p>
+            </div>
+          </div>
+
+          <div className="sm:ml-11 grid grid-cols-1 sm:grid-cols-2 gap-3">
             {memo.crossPromotions.map((item, i) => (
               <div
                 key={i}
-                className="p-3 rounded-lg bg-surface-elevated/30 print:bg-gray-50 border border-surface-border/40 print:border-gray-200"
+                className="p-4 rounded-xl bg-[#FAFAF7] border border-[#EBEBE4] flex items-start gap-3 print:bg-white"
               >
-                {item}
+                <ArrowUpRight className="w-4 h-4 text-[#899A79] shrink-0 mt-0.5" />
+                <p className="text-xs text-[#697064] leading-[1.8]">
+                  {item}
+                </p>
               </div>
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Footer URN ledger */}
-      <div className="pt-4 border-t border-surface-border text-[10px] font-mono text-gray-500 print:text-gray-600 flex flex-wrap items-center justify-between gap-2">
-        <span>Verified Qloo Entity Proof URNs: {memo.curatedEntityIds.join(', ')}</span>
-        <span>Generated: {new Date(memo.generatedAt).toUTCString()}</span>
+        {/* Document footer */}
+        <div className="pt-6 border-t border-[#EAEAE2] flex flex-col sm:flex-row justify-between gap-3 text-[10px] text-[#A0A196]">
+          <div>
+            <p className="font-semibold text-[#68765D] mb-1">
+              TasteBrief
+            </p>
+            <p>Prepared for {memo.destinationCity}</p>
+          </div>
+
+          <div className="sm:text-right">
+            <p>Generated {new Date(memo.generatedAt).toLocaleString()}</p>
+            <p className="mt-1">
+              Reference IDs: {memo.curatedEntityIds.join(', ')}
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 };

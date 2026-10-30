@@ -3,7 +3,13 @@
 import React, { useState } from 'react';
 import { PRESET_CITY_PAIRS } from '@/lib/fixtures';
 import { CityPair } from '@/types';
-import { ArrowRight, Compass, Sparkles, SlidersHorizontal } from 'lucide-react';
+import {
+  ArrowRight,
+  MapPin,
+  SlidersHorizontal,
+  Check,
+  Sparkles,
+} from 'lucide-react';
 
 interface CityPairSelectorProps {
   selectedPair: CityPair;
@@ -29,118 +35,177 @@ export const CityPairSelector: React.FC<CityPairSelectorProps> = ({
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-surface-border p-6 shadow-xl">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <section className="premium-card p-6 sm:p-8">
+
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Compass className="w-5 h-5 text-brand-400" />
-            Market Divergence Engine
+          <div className="section-label mb-2">Choose your market</div>
+          <h2 className="font-display text-2xl sm:text-[28px] text-[#29342C] tracking-tight">
+            Where are your guests coming from?
           </h2>
-          <p className="text-xs text-gray-400 mt-0.5">
-            Compare domestic venue baselines against incoming international traveler taste graphs.
+          <p className="text-sm text-[#85877F] mt-2 leading-6">
+            Compare the tastes of international visitors with the local market.
           </p>
         </div>
 
         <button
           onClick={() => setIsCustomMode(!isCustomMode)}
-          className="self-start md:self-auto flex items-center gap-1.5 text-xs font-mono text-brand-400 hover:text-brand-300 transition-colors"
+          className="inline-flex items-center justify-center gap-2 self-start sm:self-center px-4 py-2.5 rounded-xl border border-[#E5E5DC] text-xs font-semibold text-[#56644F] hover:bg-[#F2F3ED] transition-colors"
         >
           <SlidersHorizontal className="w-3.5 h-3.5" />
-          {isCustomMode ? 'Switch to Curated Presets' : 'Custom City-Pair'}
+          {isCustomMode ? 'Browse examples' : 'Custom comparison'}
         </button>
       </div>
 
       {!isCustomMode ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {PRESET_CITY_PAIRS.map((pair) => {
-            const isSelected = selectedPair.id === pair.id;
-            return (
-              <button
-                key={pair.id}
-                onClick={() => onSelectPreset(pair)}
-                disabled={isLoading}
-                className={`flex flex-col p-4 rounded-xl border text-left transition-all relative ${
-                  isSelected
-                    ? 'bg-brand-500/10 border-brand-500 text-white shadow-md shadow-brand-500/10'
-                    : 'bg-surface-elevated/50 border-surface-border text-gray-300 hover:bg-surface-elevated hover:border-gray-600'
-                }`}
-              >
-                <div className="flex items-center justify-between text-xs text-gray-400 mb-2">
-                  <span className="capitalize">{pair.venueType.replace(/_/g, ' ')}</span>
-                  {isSelected && (
-                    <span className="flex h-2 w-2 relative">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
+        <>
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-[10px] uppercase tracking-[0.16em] font-bold text-[#9B9C91]">
+              Suggested comparisons
+            </span>
+            <div className="h-px flex-1 bg-[#ECEBE4]" />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+            {PRESET_CITY_PAIRS.map((pair) => {
+              const isSelected = selectedPair.id === pair.id;
+
+              return (
+                <button
+                  key={pair.id}
+                  onClick={() => onSelectPreset(pair)}
+                  disabled={isLoading}
+                  className={`group relative text-left p-4 sm:p-5 rounded-2xl border transition-all duration-200 disabled:opacity-60 ${
+                    isSelected
+                      ? 'bg-[#F0F3EA] border-[#91A47D] shadow-[0_0_0_2px_rgba(145,164,125,0.10)]'
+                      : 'bg-white border-[#EAE9E2] hover:border-[#B7C3A8] hover:bg-[#FAFBF8]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between mb-5">
+                    <span className={`text-[10px] uppercase tracking-wider font-semibold ${
+                      isSelected ? 'text-[#627B54]' : 'text-[#999B91]'
+                    }`}>
+                      {pair.venueType.replace(/_/g, ' ')}
                     </span>
-                  )}
-                </div>
 
-                <div className="flex items-center space-x-2 text-sm font-semibold">
-                  <span className="text-white">{pair.destinationCity}</span>
-                  <ArrowRight className="w-3.5 h-3.5 text-brand-400 flex-shrink-0" />
-                  <span className="text-brand-300">{pair.originCity}</span>
-                </div>
+                    {isSelected ? (
+                      <span className="w-6 h-6 rounded-full bg-[#536B48] flex items-center justify-center">
+                        <Check className="w-3.5 h-3.5 text-white" />
+                      </span>
+                    ) : (
+                      <span className="w-6 h-6 rounded-full border border-[#E9E8E1] flex items-center justify-center group-hover:border-[#9BAC8D]">
+                        <ArrowRight className="w-3 h-3 text-[#9C9F94]" />
+                      </span>
+                    )}
+                  </div>
 
-                <div className="text-[11px] font-mono text-gray-500 mt-2">
-                  {pair.destinationCountry} ↔ {pair.originCountry}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+                  <div className="space-y-3">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-[#9A9B91] mb-1">
+                        Venue location
+                      </p>
+                      <p className="text-base font-semibold text-[#29342C]">
+                        {pair.destinationCity}
+                      </p>
+                      <p className="text-xs text-[#96978E] mt-0.5">
+                        {pair.destinationCountry}
+                      </p>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      <div className="h-px flex-1 bg-[#E6E7DE]" />
+                      <ArrowRight className="w-3.5 h-3.5 text-[#89977A]" />
+                      <div className="h-px flex-1 bg-[#E6E7DE]" />
+                    </div>
+
+                    <div>
+                      <p className="text-[10px] uppercase tracking-wider text-[#9A9B91] mb-1">
+                        Visitor market
+                      </p>
+                      <p className="text-base font-semibold text-[#536C49]">
+                        {pair.originCity}
+                      </p>
+                      <p className="text-xs text-[#96978E] mt-0.5">
+                        {pair.originCountry}
+                      </p>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </>
       ) : (
-        <form onSubmit={handleSubmitCustom} className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <form onSubmit={handleSubmitCustom} className="animate-fadeIn">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+
             <div>
-              <label className="block text-xs font-mono text-gray-400 mb-1">
-                Destination Venue Location
+              <label className="field-label">
+                Where is your venue?
               </label>
-              <input
-                type="text"
-                value={dest}
-                onChange={(e) => setDest(e.target.value)}
-                placeholder="e.g. Lisbon, Portugal"
-                className="w-full bg-surface-elevated border border-surface-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
-                required
-              />
+              <div className="relative">
+                <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8D9A7D]" />
+                <input
+                  type="text"
+                  value={dest}
+                  onChange={(e) => setDest(e.target.value)}
+                  placeholder="e.g. Lisbon, Portugal"
+                  className="premium-input pl-10"
+                  required
+                />
+              </div>
             </div>
+
             <div>
-              <label className="block text-xs font-mono text-gray-400 mb-1">
-                Visitor Origin Market
+              <label className="field-label">
+                Where are your guests from?
               </label>
-              <input
-                type="text"
-                value={orig}
-                onChange={(e) => setOrig(e.target.value)}
-                placeholder="e.g. Berlin, Germany"
-                className="w-full bg-surface-elevated border border-surface-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
-                required
-              />
+              <div className="relative">
+                <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8D9A7D]" />
+                <input
+                  type="text"
+                  value={orig}
+                  onChange={(e) => setOrig(e.target.value)}
+                  placeholder="e.g. Berlin, Germany"
+                  className="premium-input pl-10"
+                  required
+                />
+              </div>
             </div>
+
             <div>
-              <label className="block text-xs font-mono text-gray-400 mb-1">Venue Concept</label>
+              <label className="field-label">
+                What kind of venue do you run?
+              </label>
               <select
                 value={venueType}
                 onChange={(e) => setVenueType(e.target.value)}
-                className="w-full bg-surface-elevated border border-surface-border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500"
+                className="premium-input"
               >
                 <option value="café_wine_bar">Café & Natural Wine Bar</option>
-                <option value="cocktail_lounge">Artisanal Cocktail Lounge</option>
+                <option value="cocktail_lounge">Cocktail Lounge</option>
                 <option value="boutique_hotel">Boutique Hotel & Lounge</option>
-                <option value="bistro">Contemporary Neighborhood Bistro</option>
+                <option value="bistro">Neighbourhood Bistro</option>
               </select>
             </div>
           </div>
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full flex items-center justify-center space-x-2 bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white font-medium py-2.5 px-4 rounded-lg transition-colors text-sm"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>{isLoading ? 'Querying Qloo v2 Graph...' : 'Execute Live Cultural Lift Analysis'}</span>
-          </button>
+
+          <div className="mt-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-5 border-t border-[#EEEDE6]">
+            <p className="text-xs text-[#93948A]">
+              We'll compare visitor preferences with local tastes.
+            </p>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              className="primary-button min-w-[190px]"
+            >
+              <Sparkles className="w-4 h-4" />
+              <span>{isLoading ? 'Analysing...' : 'Run comparison'}</span>
+            </button>
+          </div>
         </form>
       )}
-    </div>
+    </section>
   );
 };

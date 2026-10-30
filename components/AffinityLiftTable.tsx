@@ -2,7 +2,15 @@
 
 import React from 'react';
 import { AffinityLiftItem, TagDivergence } from '@/types';
-import { TrendingUp, TrendingDown, Sparkles, Tag, HelpCircle } from 'lucide-react';
+import {
+  TrendingUp,
+  TrendingDown,
+  Sparkles,
+  Tag,
+  ArrowUpRight,
+  ArrowDownRight,
+  Lightbulb,
+} from 'lucide-react';
 
 interface AffinityLiftTableProps {
   venues: AffinityLiftItem[];
@@ -18,126 +26,165 @@ export const AffinityLiftTable: React.FC<AffinityLiftTableProps> = ({
   destinationCity,
 }) => {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* Venues Lift Table */}
-      <div className="lg:col-span-2 bg-surface rounded-2xl border border-surface-border p-6 shadow-xl flex flex-col justify-between">
-        <div>
-          <div className="flex items-center justify-between mb-4">
+    <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+      {/* Venue comparison */}
+      <section className="xl:col-span-2 premium-card overflow-hidden">
+
+        <div className="p-6 sm:p-7 border-b border-[#ECEBE5]">
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
             <div>
-              <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-brand-400" />
-                Empirical Venue Affinity Lift
+              <div className="section-label mb-2">01 · Venue preferences</div>
+              <h3 className="font-display text-2xl text-[#29342C] tracking-tight">
+                Places visitors are drawn to
               </h3>
-              <p className="text-xs text-gray-400">
-                Mathematical divergence: Local {destinationCity} baseline vs.{' '}
-                <span className="text-brand-300 font-medium">signal.location={originCity}</span>
+              <p className="text-sm text-[#888A80] mt-2 leading-6">
+                How popular venues compare between {destinationCity} locals
+                and visitors from {originCity}.
               </p>
             </div>
-            <span className="text-[11px] font-mono text-gray-500">Qloo /v2/insights</span>
-          </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
-              <thead>
-                <tr className="border-b border-surface-border text-gray-400 font-mono">
-                  <th className="pb-3 font-medium">Venue Entity</th>
-                  <th className="pb-3 font-medium text-center">Baseline</th>
-                  <th className="pb-3 font-medium text-center">Inbound Lift</th>
-                  <th className="pb-3 font-medium text-right">Divergence %</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-surface-border/50">
-                {venues.map((venue) => {
-                  const isPositive = venue.liftPercentage > 0;
-                  return (
-                    <tr key={venue.id} className="hover:bg-surface-elevated/40 transition-colors">
-                      <td className="py-3 pr-4">
-                        <div className="font-semibold text-white text-sm">{venue.name}</div>
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {venue.tags.slice(0, 3).map((tag, i) => (
-                            <span
-                              key={i}
-                              className="px-1.5 py-0.5 rounded text-[10px] bg-surface-elevated text-gray-400 font-mono"
-                            >
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                        <div className="text-[11px] text-gray-400 mt-1 max-w-sm">
-                          {venue.significanceReason}
-                        </div>
-                      </td>
-                      <td className="py-3 px-2 text-center font-mono text-gray-400">
+            <div className="shrink-0 flex items-center gap-2 text-[10px] text-[#7B876E] bg-[#F0F3EA] px-3 py-2 rounded-full">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#82966D]" />
+              Live insights
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[590px]">
+            <thead>
+              <tr className="bg-[#FAFAF7] text-[10px] uppercase tracking-[0.12em] text-[#999B91]">
+                <th className="px-6 py-4 font-semibold">Venue</th>
+                <th className="px-4 py-4 font-semibold text-center">Local</th>
+                <th className="px-4 py-4 font-semibold text-center">Visitors</th>
+                <th className="px-6 py-4 font-semibold text-right">Difference</th>
+              </tr>
+            </thead>
+
+            <tbody className="divide-y divide-[#F0EFE9]">
+              {venues.map((venue) => {
+                const isPositive = venue.liftPercentage > 0;
+
+                return (
+                  <tr
+                    key={venue.id}
+                    className="group hover:bg-[#FAFBF8] transition-colors"
+                  >
+                    <td className="px-6 py-5 max-w-[280px]">
+                      <div className="text-sm font-semibold text-[#303B32]">
+                        {venue.name}
+                      </div>
+
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {venue.tags.slice(0, 3).map((tag, i) => (
+                          <span
+                            key={i}
+                            className="text-[10px] text-[#7C846F] bg-[#F0F2EB] px-2 py-1 rounded-md"
+                          >
+                            {tag.replace(/_/g, ' ')}
+                          </span>
+                        ))}
+                      </div>
+
+                      <p className="text-xs text-[#92948B] mt-2 leading-5">
+                        {venue.significanceReason}
+                      </p>
+                    </td>
+
+                    <td className="px-4 py-5 text-center">
+                      <span className="text-sm font-semibold tabular-nums text-[#92948B]">
                         {(venue.baselineScore * 100).toFixed(0)}%
-                      </td>
-                      <td className="py-3 px-2 text-center font-mono font-medium text-white">
+                      </span>
+                    </td>
+
+                    <td className="px-4 py-5 text-center">
+                      <span className="text-sm font-semibold tabular-nums text-[#344B39]">
                         {(venue.visitorScore * 100).toFixed(0)}%
-                      </td>
-                      <td className="py-3 pl-2 text-right">
-                        <span
-                          className={`inline-flex items-center space-x-1 px-2 py-1 rounded-md font-mono text-xs font-bold ${
-                            isPositive
-                              ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                              : 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
-                          }`}
-                        >
-                          {isPositive ? (
-                            <TrendingUp className="w-3.5 h-3.5 mr-0.5" />
-                          ) : (
-                            <TrendingDown className="w-3.5 h-3.5 mr-0.5" />
-                          )}
-                          {isPositive ? `+${venue.liftPercentage}%` : `${venue.liftPercentage}%`}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                      </span>
+                    </td>
+
+                    <td className="px-6 py-5 text-right">
+                      <span className={`inline-flex items-center justify-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-bold tabular-nums ${
+                        isPositive
+                          ? 'bg-[#EDF4E9] text-[#587B4C]'
+                          : 'bg-[#FAEEEB] text-[#AD6353]'
+                      }`}>
+                        {isPositive ? (
+                          <ArrowUpRight className="w-3.5 h-3.5" />
+                        ) : (
+                          <ArrowDownRight className="w-3.5 h-3.5" />
+                        )}
+                        {isPositive ? '+' : ''}{venue.liftPercentage}%
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+
+              {venues.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="px-6 py-12 text-center text-sm text-[#92948B]">
+                    No venue comparisons available.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="px-6 py-4 bg-[#FAFAF7] border-t border-[#ECEBE5] flex flex-wrap items-center justify-between gap-2">
+          <span className="text-[10px] text-[#9A9B91]">
+            Based on local and visitor preference scores
+          </span>
+          <span className="text-[10px] text-[#A3A399]">
+            Qloo Insights
+          </span>
+        </div>
+      </section>
+
+      {/* Cultural trends */}
+      <section className="premium-card p-6 sm:p-7 flex flex-col">
+        <div className="section-label mb-2">02 · Cultural interests</div>
+
+        <div className="flex items-center justify-between gap-2">
+          <h3 className="font-display text-2xl text-[#29342C] tracking-tight">
+            What's different?
+          </h3>
+          <div className="w-9 h-9 rounded-xl bg-[#F0F3EA] flex items-center justify-center">
+            <Tag className="w-4 h-4 text-[#71845F]" />
           </div>
         </div>
 
-        <div className="mt-4 pt-4 border-t border-surface-border flex items-center justify-between text-[11px] text-gray-500 font-mono">
-          <span>Formula: ((VisitorScore - BaselineScore) / BaselineScore) * 100</span>
-          <span>URN Filter: urn:entity:place</span>
-        </div>
-      </div>
+        <p className="text-xs text-[#8D8F85] mt-2 mb-6 leading-5">
+          Interests that stand out among visitors compared with local tastes.
+        </p>
 
-      {/* Cultural Tag Surges */}
-      <div className="bg-surface rounded-2xl border border-surface-border p-6 shadow-xl flex flex-col justify-between">
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <Tag className="w-4 h-4 text-accent-emerald" />
-              Micro-Cultural Tag Spikes
-            </h3>
-            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
-              OPERATIONAL DELTA
-            </span>
-          </div>
+        <div className="space-y-3 flex-1">
+          {tags.map((tag, i) => {
+            const isPositive = tag.liftPercentage > 0;
 
-          <div className="space-y-4">
-            {tags.map((tag, i) => (
+            return (
               <div
                 key={i}
-                className="p-3 rounded-xl bg-surface-elevated/50 border border-surface-border/60 hover:border-gray-500 transition-colors"
+                className="rounded-2xl border border-[#EDEDE5] bg-[#FCFCFA] p-4 hover:border-[#CBD5BE] transition-colors"
               >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-semibold text-xs text-white">{tag.tag}</span>
-                  <span
-                    className={`font-mono text-xs font-bold ${
-                      tag.liftPercentage > 0 ? 'text-emerald-400' : 'text-rose-400'
-                    }`}
-                  >
-                    {tag.liftPercentage > 0 ? `+${tag.liftPercentage}%` : `${tag.liftPercentage}%`}
+                <div className="flex items-start justify-between gap-3">
+                  <span className="text-sm font-semibold text-[#344036]">
+                    {tag.tag.replace(/_/g, ' ')}
+                  </span>
+
+                  <span className={`shrink-0 text-xs font-bold tabular-nums ${
+                    isPositive ? 'text-[#638552]' : 'text-[#B56C5D]'
+                  }`}>
+                    {isPositive ? '+' : ''}{tag.liftPercentage}%
                   </span>
                 </div>
 
-                {/* Progress bar visualizer */}
-                <div className="w-full bg-surface h-1.5 rounded-full overflow-hidden mb-2">
+                <div className="mt-3 h-1.5 w-full rounded-full bg-[#ECEDE6] overflow-hidden">
                   <div
                     className={`h-full rounded-full ${
-                      tag.liftPercentage > 0 ? 'bg-emerald-500' : 'bg-rose-500'
+                      isPositive ? 'bg-[#8DA37A]' : 'bg-[#CB9387]'
                     }`}
                     style={{
                       width: `${Math.min(100, Math.max(10, Math.abs(tag.liftPercentage) / 3))}%`,
@@ -145,19 +192,28 @@ export const AffinityLiftTable: React.FC<AffinityLiftTableProps> = ({
                   />
                 </div>
 
-                <p className="text-[11px] text-gray-300 leading-relaxed">
+                <p className="mt-3 text-xs text-[#85877E] leading-[1.65]">
                   {tag.actionableInsight}
                 </p>
               </div>
-            ))}
-          </div>
+            );
+          })}
+
+          {tags.length === 0 && (
+            <p className="text-sm text-[#92948B] text-center py-8">
+              No cultural trends available.
+            </p>
+          )}
         </div>
 
-        <div className="mt-4 pt-3 border-t border-surface-border text-[11px] text-gray-400 flex items-center gap-1.5">
-          <HelpCircle className="w-3.5 h-3.5 text-brand-400 flex-shrink-0" />
-          <span>Surfaces where visitor cohorts depart most radically from domestic norms.</span>
+        <div className="mt-5 pt-4 border-t border-[#ECEBE5] flex gap-2.5 items-start">
+          <Lightbulb className="w-4 h-4 text-[#A58B56] shrink-0 mt-0.5" />
+          <p className="text-[11px] text-[#92948B] leading-5">
+            Use these differences to decide what deserves a place on your menu
+            and in your venue.
+          </p>
         </div>
-      </div>
+      </section>
     </div>
   );
 };
