@@ -72,7 +72,7 @@ export interface ActionMemo {
   crossPromotions: string[];
   curatedEntityIds: string[];
   generatedAt: string;
-  engineUsed: 'Gemini 1.5 Flash (Constrained Qloo Grounding)';
+  engineUsed: 'Gemini 3.5 Flash-Lite (Constrained Qloo Grounding)';
 }
 
 export interface NetworkCallLog {
