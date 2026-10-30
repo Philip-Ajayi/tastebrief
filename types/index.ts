@@ -72,7 +72,7 @@ export interface ActionMemo {
   crossPromotions: string[];
   curatedEntityIds: string[];
   generatedAt: string;
-  engineUsed: 'Gemini 1.5 Flash (Constrained Qloo Grounding)' | 'TasteBrief Deterministic Rules Engine';
+  engineUsed: 'Gemini 1.5 Flash (Constrained Qloo Grounding)';
 }
 
 export interface NetworkCallLog {
@@ -84,16 +84,6 @@ export interface NetworkCallLog {
   durationMs: number;
   isMocked: boolean;
   responsePreview: string;
-}
-
-export interface AnalysisResponse {
-  cityPair: CityPair;
-  affinityLiftVenues: AffinityLiftItem[];
-  tagDivergences: TagDivergence[];
-  musicBridge: MusicBridgeArtist[];
-  actionMemo: ActionMemo;
-  networkLogs: NetworkCallLog[];
-  isDemoMode: boolean;
 }
 
 export interface ComparativeProof {
@@ -111,4 +101,15 @@ export interface ComparativeProof {
     spatialAtmosphere: string[];
     empiricalValidation: string;
   };
+}
+
+export interface AnalysisResponse {
+  cityPair: CityPair;
+  affinityLiftVenues: AffinityLiftItem[];
+  tagDivergences: TagDivergence[];
+  musicBridge: MusicBridgeArtist[];
+  actionMemo: ActionMemo;
+  comparativeProof: ComparativeProof;
+  networkLogs: NetworkCallLog[];
+  isDemoMode: boolean;
 }

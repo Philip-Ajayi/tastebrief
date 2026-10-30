@@ -9,17 +9,18 @@ import { ProofTestComparison } from '@/components/ProofTestComparison';
 import { ActionMemoView } from '@/components/ActionMemoView';
 import { NetworkInspectorModal } from '@/components/NetworkInspectorModal';
 import { ApiKeyModal } from '@/components/ApiKeyModal';
-import { PRESET_CITY_PAIRS, COMPARATIVE_PROOF_SCENARIO } from '@/lib/fixtures';
+import { PRESET_CITY_PAIRS } from '@/lib/fixtures';
 import { CityPair, AnalysisResponse, NetworkCallLog } from '@/types';
-import { Loader2, ArrowUpRight, BarChart3, Sparkles } from 'lucide-react';
+import { Loader2, ArrowUpRight, BarChart3, Sparkles, AlertCircle, Key } from 'lucide-react';
 
 export default function DashboardPage() {
   const [selectedPair, setSelectedPair] = useState<CityPair>(PRESET_CITY_PAIRS[0]);
   const [analysisData, setAnalysisData] = useState<AnalysisResponse | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [networkLogs, setNetworkLogs] = useState<NetworkCallLog[]>([]);
 
-  // Key state
+  // Key state (retrieved from localStorage on mount if available)
   const [customApiKey, setCustomApiKey] = useState<string>('');
   const [customGeminiKey, setCustomGeminiKey] = useState<string>('');
 
@@ -27,14 +28,26 @@ export default function DashboardPage() {
   const [isInspectorOpen, setIsInspectorOpen] = useState<boolean>(false);
   const [isKeyModalOpen, setIsKeyModalOpen] = useState<boolean>(false);
 
+  useEffect(() => {
+    const storedQloo = localStorage.getItem('tb_qloo_key') || '';
+    const storedGemini = localStorage.getItem('tb_gemini_key') || '';
+    if (storedQloo) setCustomApiKey(storedQloo);
+    if (storedGemini) setCustomGeminiKey(storedGemini);
+  }, []);
+
   const runAnalysis = useCallback(async (
     pair: CityPair,
     apiKeyOverride?: string,
     geminiKeyOverride?: string
   ) => {
     setIsLoading(true);
+    setErrorMessage(null);
+
+    const qKey = apiKeyOverride !== undefined ? apiKeyOverride : customApiKey;
+    const gKey = geminiKeyOverride !== undefined ? geminiKeyOverride : customGeminiKey;
+
     try {
-      const res = await fetch('/app/api/analyze' ? '/api/analyze' : '/api/analyze', {
+      const res = await fetch('/api/analyze', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -42,20 +55,21 @@ export default function DashboardPage() {
           customDestination: pair.destinationQuery,
           customOrigin: pair.originQuery,
           customVenueType: pair.venueType,
-          customApiKey: apiKeyOverride !== undefined ? apiKeyOverride : customApiKey,
-          customGeminiKey: geminiKeyOverride !== undefined ? geminiKeyOverride : customGeminiKey,
+          customApiKey: qKey,
+          customGeminiKey: gKey,
         }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        throw new Error('API request failed');
+        throw new Error(data.details || data.error || `HTTP error ${res.status}`);
       }
 
-      const data: AnalysisResponse = await res.json();
       setAnalysisData(data);
       setNetworkLogs(data.networkLogs || []);
-    } catch {
-      // In extreme network fault situations, use fallback data locally
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Failed to communicate with live cultural endpoints.');
     } finally {
       setIsLoading(false);
     }
@@ -72,22 +86,23 @@ export default function DashboardPage() {
   const handleExecuteCustom = (dest: string, orig: string, venueType: string) => {
     const customPair: CityPair = {
       id: 'custom',
-      destinationCity: dest.split(',')[0],
-      destinationCountry: dest.split(',')[1] || 'Global',
+      destinationCity: dest.split(',')[0].trim(),
+      destinationCountry: dest.split(',')[1]?.trim() || 'Global',
       destinationQuery: dest,
-      originCity: orig.split(',')[0],
-      originCountry: orig.split(',')[1] || 'Global',
+      originCity: orig.split(',')[0].trim(),
+      originCountry: orig.split(',')[1]?.trim() || 'Global',
       originQuery: orig,
       venueType: venueType as any,
       baselineTags: ['coffee', 'wine_bar', 'dining'],
     };
     setSelectedPair(customPair);
-    runAnalysis(customPair);
   };
 
   const handleSaveKeys = (qKey: string, gKey: string) => {
     setCustomApiKey(qKey);
     setCustomGeminiKey(gKey);
+    localStorage.setItem('tb_qloo_key', qKey);
+    localStorage.setItem('tb_gemini_key', gKey);
     runAnalysis(selectedPair, qKey, gKey);
   };
 
@@ -97,7 +112,7 @@ export default function DashboardPage() {
         onOpenInspector={() => setIsInspectorOpen(true)}
         onOpenKeyModal={() => setIsKeyModalOpen(true)}
         hasCustomKey={Boolean(customApiKey)}
-        isDemoMode={analysisData?.isDemoMode ?? true}
+        hasEnvKey={Boolean(process.env.NEXT_PUBLIC_HAS_ENV_KEYS)}
       />
 
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 w-full">
@@ -112,7 +127,7 @@ export default function DashboardPage() {
               Stop serving pretzels to Berliners in Lisbon.
             </h1>
             <p className="mt-3 text-sm sm:text-base text-gray-300 leading-relaxed">
-              TasteBrief queries Qloo’s Taste Graph to calculate the mathematical taste divergence between domestic venue baselines and incoming international travelers. Independent hospitality operators can now replace cultural clichés with empirical lifestyle correlations.
+              TasteBrief queries Qloo’s Taste Graph in real time to calculate the mathematical taste divergence between domestic venue baselines and incoming international travelers.
             </p>
           </div>
 
@@ -121,7 +136,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* 1. City-Pair Selector */}
+        {/* City-Pair Selector */}
         <CityPairSelector
           selectedPair={selectedPair}
           onSelectPreset={handleSelectPreset}
@@ -129,20 +144,39 @@ export default function DashboardPage() {
           isLoading={isLoading}
         />
 
+        {/* Error Alert Banner */}
+        {errorMessage && (
+          <div className="p-5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5 text-rose-400" />
+              <div>
+                <h4 className="font-bold text-sm text-white">Live Query Failed</h4>
+                <p className="text-xs text-rose-200 mt-1">{errorMessage}</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setIsKeyModalOpen(true)}
+              className="flex items-center space-x-1.5 px-4 py-2 rounded-lg bg-rose-600 hover:bg-rose-500 text-xs font-semibold text-white transition-colors flex-shrink-0"
+            >
+              <Key className="w-3.5 h-3.5" />
+              <span>Configure Live API Keys</span>
+            </button>
+          </div>
+        )}
+
         {/* Loading Spinner */}
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-16 space-y-3">
             <Loader2 className="w-8 h-8 text-brand-500 animate-spin" />
             <span className="text-xs font-mono text-gray-400">
-              Querying Qloo v2 Graph & Calculating Statistical Affinity Lift...
+              Executing Live Qloo /v2/insights Queries & Calculating Affinity Lift...
             </span>
           </div>
         )}
 
-        {/* Content Modules */}
+        {/* Content Modules (Only rendered when live data succeeds) */}
         {!isLoading && analysisData && (
           <div className="space-y-8">
-            {/* 2. Affinity Lift Table & Micro-Cultural Tags */}
             <AffinityLiftTable
               venues={analysisData.affinityLiftVenues}
               tags={analysisData.tagDivergences}
@@ -150,30 +184,25 @@ export default function DashboardPage() {
               destinationCity={selectedPair.destinationCity}
             />
 
-            {/* 3. Cross-Domain Music Bridge */}
             <MusicBridgeCard
               music={analysisData.musicBridge}
               originCity={selectedPair.originCity}
               destinationCity={selectedPair.destinationCity}
             />
 
-            {/* 4. Comparative Proof Test */}
-            <ProofTestComparison proof={COMPARATIVE_PROOF_SCENARIO} />
+            <ProofTestComparison proof={analysisData.comparativeProof} />
 
-            {/* 5. 1-Page Printable Action Memo */}
             <ActionMemoView memo={analysisData.actionMemo} />
           </div>
         )}
       </main>
 
-      {/* Network Inspector Drawer Modal */}
       <NetworkInspectorModal
         isOpen={isInspectorOpen}
         onClose={() => setIsInspectorOpen(false)}
         logs={networkLogs}
       />
 
-      {/* API Key Modal */}
       <ApiKeyModal
         isOpen={isKeyModalOpen}
         onClose={() => setIsKeyModalOpen(false)}
@@ -182,13 +211,12 @@ export default function DashboardPage() {
         currentGeminiKey={customGeminiKey}
       />
 
-      {/* Footer */}
       <footer className="border-t border-surface-border bg-background py-6 mt-12 print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500 gap-4">
           <div className="flex items-center space-x-2">
             <span>TasteBrief</span>
             <span>•</span>
-            <span>Zero-Cost Enterprise Architecture on Vercel Hobby & Qloo Hackathon Tier</span>
+            <span>Live Qloo v2 Cultural Taste Intelligence Protocol</span>
           </div>
           <div className="flex items-center space-x-4">
             <a

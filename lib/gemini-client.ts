@@ -1,11 +1,24 @@
-import { ActionMemo, AffinityLiftItem, MusicBridgeArtist, TagDivergence } from '@/types';
-import { FIXTURE_DATA } from './fixtures';
+import { GoogleGenAI } from '@google/genai';
+import {
+  ActionMemo,
+  AffinityLiftItem,
+  ComparativeProof,
+  MusicBridgeArtist,
+  TagDivergence,
+} from '@/types';
 
 export class GeminiActionCopywriter {
-  private apiKey: string;
+  private ai: GoogleGenAI;
 
   constructor(apiKey?: string) {
-    this.apiKey = apiKey || process.env.GEMINI_API_KEY || '';
+    const key = apiKey || process.env.GEMINI_API_KEY || '';
+    if (!key || key.trim() === '') {
+      throw new Error(
+        'Missing Gemini API Key. Live copywriting requires a valid Google AI Studio Gemini API Key.'
+      );
+    }
+    // Initialize the official Google Gen AI client
+    this.ai = new GoogleGenAI({ apiKey: key });
   }
 
   public async generateActionMemo(
@@ -16,19 +29,15 @@ export class GeminiActionCopywriter {
     tagDivergences: TagDivergence[],
     musicBridge: MusicBridgeArtist[]
   ): Promise<ActionMemo> {
-    if (!this.apiKey || this.apiKey.trim() === '') {
-      return this.generateDeterministicMemo(destination, origin, venueType, surgingVenues, tagDivergences, musicBridge);
-    }
-
     const prompt = `
 You are the Chief Cultural Intelligence Officer for an independent hospitality group.
-Translate the following empirical Qloo Taste Graph divergence data into a strictly structured, highly professional 1-page Venue Programming Action Memo.
+Translate the following empirical Qloo Taste Graph divergence data into a strictly structured, professional 1-page Venue Programming Action Memo.
 
 Destination City: ${destination}
 Visitor Cohort Origin City: ${origin}
 Venue Category: ${venueType}
 
-Top Surging Venues (Affinity Lift %):
+Top Surging Venues (Empirical Lift %):
 ${surgingVenues.map((v) => `- ${v.name} (+${v.liftPercentage}% lift): ${v.significanceReason}`).join('\n')}
 
 Top Cultural Tag Divergences:
@@ -37,7 +46,7 @@ ${tagDivergences.map((t) => `- ${t.tag}: +${t.liftPercentage}% lift (Action: ${t
 Music Affinity Bridges:
 ${musicBridge.map((m) => `- ${m.name} (${m.subgenre}): Time Slot: ${m.recommendedTimeSlot}`).join('\n')}
 
-Output ONLY a raw, valid JSON object matching this schema without markdown codeblocks:
+Output ONLY a raw, valid JSON object matching this schema with no markdown formatting:
 {
   "executiveSummary": "...",
   "beverageAdjustments": ["... 3 specific operational adjustments with provenance"],
@@ -48,98 +57,92 @@ Output ONLY a raw, valid JSON object matching this schema without markdown codeb
   },
   "spatialAtmosphere": ["... 3 physical layout or aesthetic adjustments"],
   "crossPromotions": ["... 2 concrete local brand or artisanal partner activations"],
-  "curatedEntityIds": ["${surgingVenues[0]?.urn || 'urn:entity:place:sample'}", "${musicBridge[0]?.urn || 'urn:entity:artist:sample'}"]
+  "curatedEntityIds": ["${surgingVenues[0]?.urn || 'urn:entity:place:live'}", "${musicBridge[0]?.urn || 'urn:entity:artist:live'}"]
 }
 `;
 
-    try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: {
-              temperature: 0.2,
-              responseMimeType: 'application/json',
-            },
-          }),
-        }
-      );
+    const response = await this.ai.models.generateContent({
+      model: 'gemini-1.5-flash',
+      contents: prompt,
+      config: {
+        temperature: 0.2,
+        responseMimeType: 'application/json',
+      },
+    });
 
-      if (!response.ok) {
-        return this.generateDeterministicMemo(destination, origin, venueType, surgingVenues, tagDivergences, musicBridge);
-      }
-
-      const json = await response.json();
-      const rawText = json.candidates?.[0]?.content?.parts?.[0]?.text;
-      const parsed = JSON.parse(rawText);
-
-      return {
-        destinationCity: destination,
-        originCity: origin,
-        venueType,
-        executiveSummary: parsed.executiveSummary,
-        beverageAdjustments: parsed.beverageAdjustments,
-        musicalProgramming: parsed.musicalProgramming,
-        spatialAtmosphere: parsed.spatialAtmosphere,
-        crossPromotions: parsed.crossPromotions,
-        curatedEntityIds: parsed.curatedEntityIds || [surgingVenues[0]?.urn || 'urn:sample'],
-        generatedAt: new Date().toISOString(),
-        engineUsed: 'Gemini 1.5 Flash (Constrained Qloo Grounding)',
-      };
-    } catch {
-      return this.generateDeterministicMemo(destination, origin, venueType, surgingVenues, tagDivergences, musicBridge);
+    const rawText = response.text;
+    if (!rawText) {
+      throw new Error('Gemini API returned an empty completion.');
     }
+
+    const parsed = JSON.parse(rawText);
+
+    return {
+      destinationCity: destination,
+      originCity: origin,
+      venueType,
+      executiveSummary: parsed.executiveSummary,
+      beverageAdjustments: parsed.beverageAdjustments,
+      musicalProgramming: parsed.musicalProgramming,
+      spatialAtmosphere: parsed.spatialAtmosphere,
+      crossPromotions: parsed.crossPromotions,
+      curatedEntityIds: parsed.curatedEntityIds || [surgingVenues[0]?.urn || 'urn:sample'],
+      generatedAt: new Date().toISOString(),
+      engineUsed: 'Gemini 1.5 Flash (Constrained Qloo Grounding)',
+    };
   }
 
-  private generateDeterministicMemo(
+  public async generateComparativeProof(
     destination: string,
     origin: string,
     venueType: string,
     surgingVenues: AffinityLiftItem[],
     tagDivergences: TagDivergence[],
     musicBridge: MusicBridgeArtist[]
-  ): ActionMemo {
-    // If Lisbon-Berlin fixture is selected, return curated high-fidelity memo
-    if (destination.toLowerCase().includes('lisbon') && origin.toLowerCase().includes('berlin')) {
-      return FIXTURE_DATA['lisbon-berlin'].memo;
-    }
-    if (destination.toLowerCase().includes('tokyo')) {
-      return FIXTURE_DATA['tokyo-paris'].memo;
-    }
+  ): Promise<ComparativeProof> {
+    const prompt = `
+Generate a comparative benchmark contrasting what an ungrounded, stereotypical LLM would recommend vs. what our empirical Qloo taste graph actually reveals.
 
-    const topTag = tagDivergences[0]?.tag || 'Natural Wine & Artisanal Roasting';
-    const topArtist = musicBridge[0]?.name || 'Floating Points';
+Scenario: A ${venueType} in ${destination} appealing to travelers from ${origin}.
 
-    return {
-      destinationCity: destination,
-      originCity: origin,
-      venueType,
-      executiveSummary: `Inbound visitor cohorts from ${origin} visiting ${destination} demonstrate an empirical affinity lift toward ${topTag.toLowerCase()}. Local operators should align soundscapes and curated pour lists with these cross-border behavioral correlations rather than relying on blunt nationality clichés.`,
-      beverageAdjustments: [
-        `Introduce 3 rotating low-intervention offerings highlighting local producers favored by ${origin} travelers.`,
-        `Complement espresso options with single-origin batch brew filtered coffee.`,
-        `Curate an artisanal non-alcoholic spritz program highlighting regional botanicals.`,
-      ],
-      musicalProgramming: {
-        afternoon: `Warm acoustic and neoclassical arrangements bridging ${origin} and ${destination} listener profiles.`,
-        evening: `Leftfield jazz fusion featuring ${topArtist} and vinyl selector cuts.`,
-        lateNight: `Deep downtempo rhythms calibrated for intimate conversation.`,
+Empirical Qloo Data:
+- Surging Venues: ${surgingVenues.slice(0, 3).map((v) => `${v.name} (+${v.liftPercentage}%)`).join(', ')}
+- Tag Spikes: ${tagDivergences.slice(0, 3).map((t) => `${t.tag} (+${t.liftPercentage}%)`).join(', ')}
+- Music Bridges: ${musicBridge.slice(0, 3).map((m) => m.name).join(', ')}
+
+Output ONLY a raw, valid JSON object matching this schema with no markdown:
+{
+  "scenarioTitle": "${destination} ${venueType} Targeting ${origin} Travelers",
+  "genericLlmPrompt": "What menu items, music, and atmosphere should a ${venueType} in ${destination} feature to appeal to visitors from ${origin}?",
+  "genericLlmOutput": {
+    "menu": ["3 clichéd, stereotypical food/drink items ungrounded models always output"],
+    "music": ["2 stereotypical, nationality-based musical clichés"],
+    "vibe": ["2 lazy aesthetic stereotypes"],
+    "criticalFlaw": "1 concise sentence identifying why this stereotype fails in reality"
+  },
+  "tasteBriefQlooOutput": {
+    "menuDeltas": ["3 items directly drawn from the top surging Qloo tags/venues with lift percentages"],
+    "musicBridge": ["2 artist bridge recommendations based on empirical harmonic overlap"],
+    "spatialAtmosphere": ["2 spatial points contrasting real data with tourist assumptions"],
+    "empiricalValidation": "Summary of statistical affinity divergence across Qloo v2 place and artist entities"
+  }
+}
+`;
+
+    const response = await this.ai.models.generateContent({
+      model: 'gemini-3.5-flash-lite',
+      contents: prompt,
+      config: {
+        temperature: 0.2,
+        responseMimeType: 'application/json',
       },
-      spatialAtmosphere: [
-        `Highlight authentic regional materials and open sunlit areas; avoid generic metropolitan stereotypes.`,
-        `Expose physical sound equipment and album covers as tactile proof of curation.`,
-        `Keep printed menus minimal with bilingual supplier credits.`,
-      ],
-      crossPromotions: [
-        `Host monthly tasting evenings with independent regional wine importers.`,
-        `Partner with neighborhood record stores for weekend vinyl selector pop-ups.`,
-      ],
-      curatedEntityIds: surgingVenues.map((v) => v.urn).slice(0, 3),
-      generatedAt: new Date().toISOString(),
-      engineUsed: 'TasteBrief Deterministic Rules Engine',
-    };
+    });
+
+    const rawText = response.text;
+    if (!rawText) {
+      throw new Error('Gemini API returned an empty completion for comparative proof.');
+    }
+
+    return JSON.parse(rawText);
   }
 }

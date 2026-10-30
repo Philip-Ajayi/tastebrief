@@ -1,21 +1,23 @@
 'use client';
 
 import React from 'react';
-import { Globe2, ShieldCheck, Terminal, KeyRound } from 'lucide-react';
+import { Globe2, ShieldCheck, Terminal, KeyRound, AlertTriangle } from 'lucide-react';
 
 interface HeaderProps {
   onOpenInspector: () => void;
   onOpenKeyModal: () => void;
   hasCustomKey: boolean;
-  isDemoMode: boolean;
+  hasEnvKey: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
   onOpenInspector,
   onOpenKeyModal,
   hasCustomKey,
-  isDemoMode,
+  hasEnvKey,
 }) => {
+  const isConnected = hasCustomKey || hasEnvKey;
+
   return (
     <header className="sticky top-0 z-40 border-b border-surface-border bg-background/90 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -27,7 +29,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center space-x-2">
               <span className="font-bold text-xl tracking-tight text-white">TasteBrief</span>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-400 border border-brand-500/30">
-                QLOO v2 INSIGHTS
+                QLOO v2 LIVE INSIGHTS
               </span>
             </div>
             <p className="text-xs text-gray-400 hidden sm:block">
@@ -40,13 +42,22 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Status Badge */}
           <div
             className={`flex items-center space-x-1.5 px-3 py-1 rounded-full text-xs font-mono border ${
-              isDemoMode && !hasCustomKey
-                ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
-                : 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+              isConnected
+                ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                : 'bg-rose-500/10 text-rose-400 border-rose-500/30'
             }`}
           >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>{hasCustomKey ? 'LIVE API KEY' : isDemoMode ? 'HIGH-FIDELITY DEMO' : 'LIVE PRODUCTION'}</span>
+            {isConnected ? (
+              <>
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>LIVE GRAPH ACTIVE</span>
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="w-3.5 h-3.5" />
+                <span>API KEY REQUIRED</span>
+              </>
+            )}
           </div>
 
           {/* Network Inspector Trigger */}
